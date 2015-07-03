@@ -10,10 +10,10 @@ from bs4 import BeautifulSoup as bs4
 
 rcon = redis.StrictRedis(host='localhost', port=6379, db=1)
 
-appid = 'wx73b4ffb0cd067e8f'
+appid = 'wx8e080139ced94edd'
 appsecret = '0c79e1fa963cd80cc0be99b20a18faeb'
-token='liuliu'
-encodingAESKey = "iTp9ggswa5wmTUaB0XJxaW7WWp2VS9Z2pufWUbugLJL"
+token='kini'
+encodingAESKey = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
 
 def get_web_access_token(aid,code):
     """
@@ -82,8 +82,8 @@ class MainHandler(tornado.web.RequestHandler):
             self.write("Hello, world")
             
     def post(self):
-        #print 'requests:',self.request
-        #print 'requests:',self.request.body
+        print 'requests:',self.request
+        print 'requests:',self.request.body
         timestamp = self.get_argument('timestamp')
         nonce = self.get_argument('nonce')
         msg_sign = self.get_argument('msg_signature')
@@ -106,10 +106,12 @@ class Login(tornado.web.RequestHandler):
         """
         <html>
         <body>
-        <a href="https://mp.weixin.qq.com/cgi-bin/componentloginpage?component_appid=wx73b4ffb0cd067e8f&pre_auth_code=%s&redirect_uri=http://weixin.liuliu.co">login</a>
+        <a href="https://mp.weixin.qq.com/cgi-bin/componentloginpage?component_appid=%s&pre_auth_code=%s&redirect_uri=http://wxtest.oookini.com">login</a>
         </body>
         </html>
-        """%(pre_auth_code)
+        """%(
+            appid, 
+            pre_auth_code,)
         )
 
 class SnsInfo(tornado.web.RequestHandler):
@@ -117,7 +119,7 @@ class SnsInfo(tornado.web.RequestHandler):
         print 'requests:',self.request
         code = self.get_argument('code')
         stat = self.get_argument('state')
-        res = get_web_access_token('wx5d3a0689f3a6bcb5',code)
+        res = get_web_access_token('wx86fed2909860741b',code)
         print 'access token info:',res
         access_token = res['access_token']
         openid = res['openid']
@@ -152,7 +154,7 @@ application = tornado.web.Application([
     (r"/", MainHandler),
     (r"/component_verify_ticket", MainHandler),
     (r"/wxtest", wxtest),
-    (r"/login", Login),
+    (r"/auth", Login),
     (r"/snsapi_userinfo", SnsInfo),
     (r'/static/(.*)', tornado.web.StaticFileHandler, {"path": "static"})
 ],**app_settings)

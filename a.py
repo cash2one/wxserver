@@ -3,7 +3,7 @@
 import requests
 import json
 
-appid = 'wx73b4ffb0cd067e8f'
+appid = 'wx8e080139ced94edd'
 appsecret = '0c79e1fa963cd80cc0be99b20a18faeb'
 
 def get_access_token(component_verify_ticket):
