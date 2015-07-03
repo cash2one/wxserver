@@ -14,6 +14,7 @@ appid = 'wx73b4ffb0cd067e8f'
 appsecret = '0c79e1fa963cd80cc0be99b20a18faeb'
 token='liuliu'
 encodingAESKey = "iTp9ggswa5wmTUaB0XJxaW7WWp2VS9Z2pufWUbugLJL"
+host="wxtest.oookini.com"
 
 def get_web_access_token(aid,code):
     """
@@ -101,16 +102,17 @@ class Login(tornado.web.RequestHandler):
     def get(self):
         component_access_token = rcon.get('component_access_token')
         pre_auth_code = get_pre_auth_code(component_access_token)
-        #pre_auth_code = 'NmaloUgnO2BLQVjnp-dzjwXb8zj_K5VDElx-lQz-ZfiGDj3mKYwlgWhqr-HHSmR0'
-        self.write(
-        """
-        <html>
-        <body>
-        <a href="https://mp.weixin.qq.com/cgi-bin/componentloginpage?component_appid=wx73b4ffb0cd067e8f&pre_auth_code=%s&redirect_uri=http://weixin.liuliu.co">login</a>
-        </body>
-        </html>
-        """%(pre_auth_code)
-        )
+
+        #self.write(
+        #"""
+        #<html>
+        #<body>
+        #<a href="https://mp.weixin.qq.com/cgi-bin/componentloginpage?component_appid=wx73b4ffb0cd067e8f&pre_auth_code=%s&redirect_uri=http://wxtest.oookini.com">login</a>
+        #</body>
+        #</html>
+        #"""%(pre_auth_code)
+        #)
+        self.render("auth.html",appid=appid,host=host,pre_auth_code=pre_auth_code)
 
 class SnsInfo(tornado.web.RequestHandler):
     def get(self):
@@ -152,11 +154,11 @@ application = tornado.web.Application([
     (r"/", MainHandler),
     (r"/component_verify_ticket", MainHandler),
     (r"/wxtest", wxtest),
-    (r"/login", Login),
+    (r"/auth", Login),
     (r"/snsapi_userinfo", SnsInfo),
     (r'/static/(.*)', tornado.web.StaticFileHandler, {"path": "static"})
 ],**app_settings)
 
 if __name__ == "__main__":
-    application.listen(80)
+    application.listen(8080)
     tornado.ioloop.IOLoop.instance().start()

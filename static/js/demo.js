@@ -466,11 +466,11 @@ wx.ready(function () {
       cardList: [
         {
           cardId: 'pDF3iY9tv9zCGCj4jTXFOo1DxHdo',
-          cardExt: '{"code": "", "openid": "", "timestamp": "1418301401", "signature":"64e6a7cc85c6e84b726f2d1cbef1b36e9b0f9750"}'
+          cardExt: '{"code": "", "openid": "", "timestamp": "1418301401", "signature":"f54dae85e7807cc9525ccc127b4796e021f05b33"}'
         },
         {
           cardId: 'pDF3iY9tv9zCGCj4jTXFOo1DxHdo',
-          cardExt: '{"code": "", "openid": "", "timestamp": "1418301401", "signature":"64e6a7cc85c6e84b726f2d1cbef1b36e9b0f9750"}'
+          cardExt: '{"code": "", "openid": "", "timestamp": "1418301401", "signature":"f54dae85e7807cc9525ccc127b4796e021f05b33"}'
         }
       ],
       success: function (res) {
