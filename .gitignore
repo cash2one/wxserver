@@ -1,0 +1,12 @@
+*.py[a,c]
+*.swp
+server_name.py
+share/*
+*.plist
+group/share/*
+*.log
+sass/
+.sass-cache/
+group/weibopic/
+log/
+.idea
