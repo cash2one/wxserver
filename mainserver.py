@@ -16,6 +16,19 @@ token='kini'
 encodingAESKey = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
 host="wxtest.oookini.com"
 
+def get_authorizer_account_info(auth_appid):
+    """
+    获取授权方的账户信息
+    该API用于获取授权方的公众号基本信息，包括头像、昵称、帐号类型、认证类型、微信号、原始ID>    和二维码图片URL。
+    需要特别记录授权方的帐号类型，在消息及事件推送时，对于不具备客服接口的公众号，需要在5秒>    内立即响应；而若有客服接口，则可以选择暂时不响应，而选择后续通过客服接口来发送消息触达粉丝。 88     """
+    url = "https://api.weixin.qq.com/cgi-bin/component/api_get_authorizer_info?component_acc    ess_token=%s"%component_access_token
+    data = {
+            "component_appid":appid,
+            "authorizer_appid":auth_appid,
+            }
+    r = requests.post(url,data=json.dumps(data),allow_redirects=True)
+    return r.json()
+
 def get_authorization_info(auth_code):
     """
     授权码换取公众号的授权信息

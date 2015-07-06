@@ -4,7 +4,7 @@ import requests
 import json
 import hashlib
 
-appid = 'wx73b4ffb0cd067e8f'
+appid = 'wx8e080139ced94edd'
 appsecret = '0c79e1fa963cd80cc0be99b20a18faeb'
 component_access_token = '4zA58BCCeQ9k7SmyFem6hrEZ4e2gU5-wpIhvodFAx7GQZ0DtfhrxCcsIR_GerVv9WOYk9Ovxy2kQg_0igzV655Z1-TNeoKzC3COJ5HLQrf0'
 
@@ -135,7 +135,7 @@ if __name__ == '__main__':
     pass
     #print get_access_token('9A3_J1TqonBH2rRskyANvgj9QwUG3SW3U09ZwYnEBhrYrPR2Ty7LKbrjrJR1skuHDLV_8pq_gXfPvFhm7Eh4AQ')
     #print get_pre_auth_code(component_access_token)
-    print get_authorization_info('pLMS2ZR6XAJy_9sfwYPBSzgPA5PHvUsNnQbPGHbZlNt3IbK8HAlT6IWMy34_bXfX')
+    print get_authorization_info('')
     #print reflush_authorizer_access_token('wxb8987f3d8ae92870','KvrAMRxFa6pps8_4xVYvOTOpsP4zRUcBJVwRK_QNEUA')
     #print get_authorizer_account_info('wx5d3a0689f3a6bcb5')
     #print get_authorizer_option('wxb8987f3d8ae92870','location_report')
