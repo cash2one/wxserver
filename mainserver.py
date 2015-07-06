@@ -102,16 +102,6 @@ class Login(tornado.web.RequestHandler):
     def get(self):
         component_access_token = rcon.get('component_access_token')
         pre_auth_code = get_pre_auth_code(component_access_token)
-
-        #self.write(
-        #"""
-        #<html>
-        #<body>
-        #<a href="https://mp.weixin.qq.com/cgi-bin/componentloginpage?component_appid=wx73b4ffb0cd067e8f&pre_auth_code=%s&redirect_uri=http://wxtest.oookini.com">login</a>
-        #</body>
-        #</html>
-        #"""%(pre_auth_code)
-        #)
         self.render("auth.html",appid=appid,host=host,pre_auth_code=pre_auth_code)
 
 class SnsInfo(tornado.web.RequestHandler):
