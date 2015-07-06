@@ -7,14 +7,27 @@ import json
 import redis
 from  wxdecry.WXBizMsgCrypt import WXBizMsgCrypt
 from bs4 import BeautifulSoup as bs4
+from pymongo import MongoClient
+from tornado import gen
 
 rcon = redis.StrictRedis(host='localhost', port=6379, db=1)
+con = MongoClient(host = 'localhost',port='27017')
 
 appid = 'wx8e080139ced94edd'
 appsecret = '0c79e1fa963cd80cc0be99b20a18faeb'
 token='kini'
 encodingAESKey = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
 host="wxtest.oookini.com"
+
+class WXHandler(tornado.web.RequestHandler):
+
+    def prepare(self):
+        appid = self.get_cookie("appid","")
+        if not appid:
+            self.redirect("/auth")
+            return
+        else:
+            self.appid=appid
 
 def get_authorization_info(auth_code):
     """
@@ -95,8 +108,9 @@ class MainHandler(tornado.web.RequestHandler):
         expires_in = self.get_argument('expires_in','')
         if auth_code:
             print "auth_code:%s  <br> expires_in%s"%(auth_code,expires_in)
-            self.write("auth_code:%s  <br> expires_in%s"%(auth_code,expires_in))
             app_info = get_authorization_info(auth_code)
+            self.set_cookie("appid",app_info[''])
+            self.write("auth_code:%s  <br> expires_in%s"%(auth_code,expires_in))
             print 'app_info:',app_info
         else:
             self.write("Hello, world")
@@ -148,6 +162,10 @@ class SnsInfo(tornado.web.RequestHandler):
         self.finish(tmp)
 
         
+class Shop(tornado.web.RequestHandler):
+
+    def get(self):
+        appid = self.get_cookie
 
 
 class wxtest(tornado.web.RequestHandler):
