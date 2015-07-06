@@ -41,7 +41,10 @@ def get_authorization_info(auth_code):
             'authorization_code':auth_code,
             }
     r = requests.post(url,data=json.dumps(data),allow_redirects=True)
-    return r.json()
+    res = r.json()
+    if res:
+        rcon.set(res['authorizer_appid'],json.dumps(res))
+    return res
 
 def get_web_access_token(aid,code):
     """
