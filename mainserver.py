@@ -16,6 +16,20 @@ token='kini'
 encodingAESKey = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
 host="wxtest.oookini.com"
 
+def get_authorization_info(auth_code):
+    """
+    授权码换取公众号的授权信息
+    """
+    component_access_token = rcon.get('component_access_token') 
+    print 'component_access_token:',component_access_token
+    url = "https://api.weixin.qq.com/cgi-bin/component/api_query_auth?component_access_token=%s"%(component_access_token)
+    data=  {
+            'component_appid':appid,
+            'authorization_code':auth_code,
+            }
+    r = requests.post(url,data=json.dumps(data),allow_redirects=True)
+    return r.json()
+
 def get_web_access_token(aid,code):
     """
     通过代替服务号获取到的网页授权code来申请网页授权的access token
@@ -79,6 +93,8 @@ class MainHandler(tornado.web.RequestHandler):
         if auth_code:
             print "auth_code:%s  <br> expires_in%s"%(auth_code,expires_in)
             self.write("auth_code:%s  <br> expires_in%s"%(auth_code,expires_in))
+            app_info = get_authorization_info(auth_code)
+            print 'app_info:',app_info
         else:
             self.write("Hello, world")
             
