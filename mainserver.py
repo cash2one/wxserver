@@ -7,14 +7,21 @@ import json
 import redis
 from  wxdecry.WXBizMsgCrypt import WXBizMsgCrypt
 from bs4 import BeautifulSoup as bs4
-from pymongo import MongoClient
-from tornado import gen
+from wechat_server import BaseRequest,WeChatHandler
 from bson.objectid import ObjectId
-import time
+from pymongo import MongoClient
 from json import JSONEncoder
 
-rcon = redis.StrictRedis(host='wxtest.oookini.com', port=6379, db=1)
-con = MongoClient(host = 'wxtest.oookini.com',port=27017)['wx']
+rcon = redis.StrictRedis(host='localhost', port=6379, db=1)
+con = MongoClient(host = 'localhost',port=27017)['wx']
+
+class mdump(JSONEncoder):
+    def default(self, obj, **kwargs):
+        if isinstance(obj, ObjectId):
+            return str(obj)
+        else:
+            return JSONEncoder.default(obj, **kwargs)
+
 
 appid = 'wx8e080139ced94edd'
 appsecret = '0c79e1fa963cd80cc0be99b20a18faeb'
@@ -146,9 +153,80 @@ def decry_component_verify_ticket(from_xml,msg_sign,timestamp,nonce):
     """
     decrypt_test = WXBizMsgCrypt(token,encodingAESKey,appid)
     ret ,decryp_xml = decrypt_test.DecryptMsg(from_xml, msg_sign, timestamp, nonce)
+    print 'ret:',ret
+    print 'decryp_xml:',decryp_xml
     soup = bs4(decryp_xml,'xml')
     component_verify_ticket = soup.ComponentVerifyTicket.text
     return component_verify_ticket
+
+
+class Adidas(BaseRequest):
+    """
+    adidas 篮球足球公众号
+    """
+    def get_text(self):
+        print 'aaaaaaaaaaaaaaaa'
+        if self.wxtext == 't':
+            self.send_text('test')
+        else:
+            self.send_text(u'为客家人')
+
+    def search_shop(self,location):
+        """
+        """
+        query_attr = {
+                      '$geoNear': {
+                        'near': { 'type': "Point", 'coordinates': location},
+                        'distanceField': "dist.calculated",
+                        #'maxDistance': 10,
+                        'includeLocs': "dist.location",
+                        'num': 5,
+                        'spherical': True
+                      }
+        }
+        shop_list = list(con.wxshop.aggregate([query_attr]))
+        print 'shop_list:',shop_list
+        return shop_list
+
+    def get_event(self):
+        if self.event_key == 'fb_post':
+            #足球post
+            self.send_img('tvjtoklXBSTpwwOFdjw1UL22LyaJQ4oA6evlCydptTw')
+
+    def get_video(self):
+        self.send_text(u'感谢你的互动。如你已上传#火拼#视频，请留下真实姓名和手机号码，完成#火拼#报名。谢谢！')
+
+    def get_subscribe(self):
+        """
+        收到新用户关注
+        """
+        self.send_text('Welcome to adidas.')
+
+    def get_location(self):
+        res = []
+        shop_list = self.search_shop([self.location_y,self.location_x])
+        for shop in shop_list:
+            res.append(
+                    (
+                    shop['name']+u'(距离您%s米)'%int(shop['dist']['calculated']),
+                    u'距离您%s米'%int(shop['dist']['calculated']),
+                    "http://www.costa.co.uk/media/1054/store-locator-2x.jpg",
+                    "http://www.baidu.com",
+                    )
+                    )
+        #self.send_text('Welcome to adidas.')
+        self.send_artical_list(res)
+
+class www(WeChatHandler):
+    """
+    微信公众号
+    """
+    app_list ={
+        #adidas test
+        'gh_76308e64a3c4':{'handler':Adidas,'token':'kini'},
+        #adidas product
+        'gh_51058468179a':{'handler':Adidas,'token':'kini'},
+    }
 
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
@@ -161,6 +239,7 @@ class MainHandler(tornado.web.RequestHandler):
             self.set_cookie("appid",app_info['authorization_info']['authorizer_appid'])
             self.write("auth_code:%s  <br> expires_in%s"%(auth_code,expires_in))
             print 'app_info:',app_info
+            self.redirect("/shop")
         else:
             self.write("Hello, world")
             
@@ -255,6 +334,7 @@ app_settings = { 'debug':True,
 }
 application = tornado.web.Application([
     (r"/", MainHandler),
+    (r"/.*/callback", www),
     (r"/component_verify_ticket", MainHandler),
     (r"/wxtest", wxtest),
     (r"/auth", Login),
