@@ -9,9 +9,12 @@ from  wxdecry.WXBizMsgCrypt import WXBizMsgCrypt
 from bs4 import BeautifulSoup as bs4
 from pymongo import MongoClient
 from tornado import gen
+from bson.objectid import ObjectId
+import time
+from json import JSONEncoder
 
-rcon = redis.StrictRedis(host='localhost', port=6379, db=1)
-con = MongoClient(host = 'localhost',port='27017')
+rcon = redis.StrictRedis(host='wxtest.oookini.com', port=6379, db=1)
+con = MongoClient(host = 'wxtest.oookini.com',port=27017)['wx']
 
 appid = 'wx8e080139ced94edd'
 appsecret = '0c79e1fa963cd80cc0be99b20a18faeb'
@@ -19,15 +22,57 @@ token='kini'
 encodingAESKey = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
 host="wxtest.oookini.com"
 
+class mdump(JSONEncoder):
+    def default(self, obj, **kwargs):
+         if isinstance(obj, ObjectId):
+             return str(obj)
+         else:
+             return JSONEncoder.default(obj, **kwargs)
+
+def dumps(obj):
+    return json.dumps(obj,cls=mdump)
+
+def search_shop(appid,location):
+    """
+    """
+    query_attr = {
+                  '$geoNear': {
+                    'near': { 'type': "Point", 'coordinates': location},
+                    'distanceField': "dist.calculated",
+                    #'maxDistance': 10,
+                    'includeLocs': "dist.location",
+                    'num': 5,
+                    'spherical': True
+                  }
+    }
+    shop_list = list(con.wxshop.aggregate([query_attr]))
+    return shop_list
+
+
 class WXHandler(tornado.web.RequestHandler):
 
     def prepare(self):
         appid = self.get_cookie("appid","")
+        appid = 'wx86fed2909860741b'
         if not appid:
             self.redirect("/auth")
             return
         else:
             self.appid=appid
+
+def get_authorizer_account_info(auth_appid):
+    """
+    获取授权方的账户信息
+    该API用于获取授权方的公众号基本信息，包括头像、昵称、帐号类型、认证类型、微信号、原始ID>    和二维码图片URL。
+    需要特别记录授权方的帐号类型，在消息及事件推送时，对于不具备客服接口的公众号，需要在5秒>    内立即响应；而若有客服接口，则可以选择暂时不响应，而选择后续通过客服接口来发送消息触达粉丝。 88     """
+    component_access_token = rcon.get('component_access_token') 
+    url = "https://api.weixin.qq.com/cgi-bin/component/api_get_authorizer_info?component_access_token=%s"%component_access_token
+    data = {
+            "component_appid":appid,
+            "authorizer_appid":auth_appid,
+            }
+    r = requests.post(url,data=json.dumps(data),allow_redirects=True)
+    return r.json()
 
 def get_authorization_info(auth_code):
     """
@@ -43,7 +88,11 @@ def get_authorization_info(auth_code):
     r = requests.post(url,data=json.dumps(data),allow_redirects=True)
     res = r.json()
     if res:
-        rcon.set(res['authorizer_appid'],json.dumps(res))
+        print 'res:',res
+        app_account_info = get_authorizer_account_info(res['authorization_info']['authorizer_appid'])
+        print 'app_account_info:',app_account_info
+        res.update(app_account_info)
+        rcon.set(res['authorization_info']['authorizer_appid'],json.dumps(res))
     return res
 
 def get_web_access_token(aid,code):
@@ -109,7 +158,7 @@ class MainHandler(tornado.web.RequestHandler):
         if auth_code:
             print "auth_code:%s  <br> expires_in%s"%(auth_code,expires_in)
             app_info = get_authorization_info(auth_code)
-            self.set_cookie("appid",app_info[''])
+            self.set_cookie("appid",app_info['authorization_info']['authorizer_appid'])
             self.write("auth_code:%s  <br> expires_in%s"%(auth_code,expires_in))
             print 'app_info:',app_info
         else:
@@ -162,16 +211,43 @@ class SnsInfo(tornado.web.RequestHandler):
         self.finish(tmp)
 
         
-class Shop(tornado.web.RequestHandler):
+class Shop(WXHandler):
 
     def get(self):
-        appid = self.get_cookie
+        shop_id = self.get_argument('shop_id','')
+        #appid = self.get_cookie
+        ainfo = rcon.get(self.appid)
+        print 'ainfo:',ainfo
+        ainfo = json.loads(ainfo)
+        self.render("addshop.html",ainfo=ainfo,sinfo={})
+
+    def post(self):
+        shop_id = self.get_argument('shop_id')
+        name = self.get_argument('name')
+        address = self.get_argument('address')
+        longitude = float(self.get_argument('longitude'))
+        latitude = float(self.get_argument('latitude'))
+        data = {
+                'name':name,
+                'address':address,
+                'location':[longitude,latitude],
+                }
+        if shop_id:
+            con.wxshop.update({'_id':ObjectId(shop_id)},{'$set':data}) 
+        else:
+            appinfo = json.loads(rcon.get(self.appid))
+            data['create_time'] = time.time()
+            data['appid'] = self.appid
+            data['app_name'] = appinfo['authorizer_info']['nick_name']
+            con.wxshop.insert(data) 
+        self.redirect("/shop")
 
 
 class wxtest(tornado.web.RequestHandler):
     def get(self):
         print 'requests:',self.request
         self.render('wxtest.html')
+
 
 app_settings = { 'debug':True,
                  'autoreload':True,
@@ -182,6 +258,7 @@ application = tornado.web.Application([
     (r"/component_verify_ticket", MainHandler),
     (r"/wxtest", wxtest),
     (r"/auth", Login),
+    (r"/shop", Shop),
     (r"/snsapi_userinfo", SnsInfo),
     (r'/static/(.*)', tornado.web.StaticFileHandler, {"path": "static"})
 ],**app_settings)
