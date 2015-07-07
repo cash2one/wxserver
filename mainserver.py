@@ -211,7 +211,7 @@ class Adidas(BaseRequest):
                     shop['name']+u'(距离您%s米)'%int(shop['dist']['calculated']),
                     u'距离您%s米'%int(shop['dist']['calculated']),
                     "http://www.costa.co.uk/media/1054/store-locator-2x.jpg",
-                    "http://www.baidu.com",
+                    "http://wxtest.oookini.com/shopmap?shop_id=%s"%shop['_id'],
                     )
                     )
         #self.send_text('Welcome to adidas.')
