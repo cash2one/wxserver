@@ -12,8 +12,8 @@ from bson.objectid import ObjectId
 from pymongo import MongoClient
 from json import JSONEncoder
 
-rcon = redis.StrictRedis(host='localhost', port=6379, db=1)
-con = MongoClient(host = 'localhost',port=27017)['wx']
+rcon = redis.StrictRedis(host='wxtest.oookini.com', port=6379, db=1)
+con = MongoClient(host = 'wxtest.oookini.com',port=27017)['wx']
 
 class mdump(JSONEncoder):
     def default(self, obj, **kwargs):
@@ -322,6 +322,15 @@ class Shop(WXHandler):
         self.redirect("/shop")
 
 
+class ShopMap(tornado.web.RequestHandler):
+
+    def get(self):
+        shop_id = self.get_argument('shop_id')
+        print 'shop_id:',shop_id
+        shop = con.wxshop.find_one({'_id':ObjectId(shop_id)})
+        print 'shop:',shop
+        self.render('shopmap.html',shop=shop)
+
 class wxtest(tornado.web.RequestHandler):
     def get(self):
         print 'requests:',self.request
@@ -339,6 +348,7 @@ application = tornado.web.Application([
     (r"/wxtest", wxtest),
     (r"/auth", Login),
     (r"/shop", Shop),
+    (r"/shopmap", ShopMap),
     (r"/snsapi_userinfo", SnsInfo),
     (r'/static/(.*)', tornado.web.StaticFileHandler, {"path": "static"})
 ],**app_settings)

@@ -29,7 +29,7 @@ var init = function() {
     });
     infoWin.open();
     infoWin.setContent('<div style="width:200px;padding-top:10px;">'+
-        '<img style="float:left;" src="http://www.costa.co.uk/media/1054/store-locator-2x.jpg"/> '+
+        '<img width="50px" height="50px" style="float:left;" src="http://www.costa.co.uk/media/1054/store-locator-2x.jpg"/> '+
         '{{shop['name']}}</div>');
     infoWin.setPosition(center);
 }
@@ -38,7 +38,6 @@ var init = function() {
 <body onload="init()">
     <div style="width:603px;height:300px" id="container"></div>
     <div id="info">
-    <p>调用open方法打开一个信息窗，内容为一张图片和一段文字。</p>
 </div>
 </body>
 </html>
