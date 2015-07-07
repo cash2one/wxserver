@@ -1,0 +1,37 @@
+{% extends base.html %}
+
+{%block main%}
+    <p><a href="/shop?appid={{appid}}" ><button class="btn btn-primary btn-lg active" type="button"  >添加店铺</button></a></p>
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                <th>#</th>
+                <th>店铺名</th>
+                <th>店铺地址</th>
+                <th>经纬度</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {%for index,shop in enumerate(shoplist)%}
+                <tr>
+                <th scope="row">{{index+1}}</th>
+                <td>{{shop['name']}}</td>
+                <td>{{shop['address']}}</td>
+                <td>{{shop['location']}}</td>
+                </tr>
+                {%end%}
+            </tbody>
+        </table>
+{%end%}
+
+{%block script%}
+<script>
+$(document).ready(function(){
+    //$(".atab").click(function () {
+    //    alert('#tab_city #a_'+$(this).attr('city'));
+    //    $('#tab_city #a_'+$(this).attr('city')).tab('show');
+    //});
+})
+</script>
+{%end%}
