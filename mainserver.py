@@ -11,6 +11,7 @@ from wechat_server import BaseRequest,WeChatHandler
 from bson.objectid import ObjectId
 from pymongo import MongoClient
 from json import JSONEncoder
+import time
 
 rcon = redis.StrictRedis(host='wxtest.oookini.com', port=6379, db=1)
 con = MongoClient(host = 'wxtest.oookini.com',port=27017)['wx']
@@ -294,14 +295,17 @@ class Shop(WXHandler):
 
     def get(self):
         shop_id = self.get_argument('shop_id','')
-        #appid = self.get_cookie
-        ainfo = rcon.get(self.appid)
+        appid = self.get_argument('appid')
+        print 'appid:',appid
+        print 'shop_id:',shop_id
+        ainfo = rcon.get(appid)
         print 'ainfo:',ainfo
         ainfo = json.loads(ainfo)
         self.render("addshop.html",ainfo=ainfo,sinfo={})
 
     def post(self):
         shop_id = self.get_argument('shop_id')
+        appid = self.get_argument('appid')
         name = self.get_argument('name')
         address = self.get_argument('address')
         longitude = float(self.get_argument('longitude'))
@@ -319,7 +323,7 @@ class Shop(WXHandler):
             data['appid'] = self.appid
             data['app_name'] = appinfo['authorizer_info']['nick_name']
             con.wxshop.insert(data) 
-        self.redirect("/shop")
+        self.redirect("/shoplist?appid=%s"%appid)
 
 
 class ShopMap(tornado.web.RequestHandler):
@@ -330,6 +334,15 @@ class ShopMap(tornado.web.RequestHandler):
         shop = con.wxshop.find_one({'_id':ObjectId(shop_id)})
         print 'shop:',shop
         self.render('shopmap.html',shop=shop)
+
+class ShopList(tornado.web.RequestHandler):
+    """
+    店铺列表
+    """
+    def get(self):
+        appid = self.get_argument('appid')
+        shoplist = con.wxshop.find({'appid':appid})
+        self.render("shoplist.html",shoplist=shoplist,appid=appid)
 
 class wxtest(tornado.web.RequestHandler):
     def get(self):
@@ -348,6 +361,7 @@ application = tornado.web.Application([
     (r"/wxtest", wxtest),
     (r"/auth", Login),
     (r"/shop", Shop),
+    (r"/shoplist", ShopList),
     (r"/shopmap", ShopMap),
     (r"/snsapi_userinfo", SnsInfo),
     (r'/static/(.*)', tornado.web.StaticFileHandler, {"path": "static"})
