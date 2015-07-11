@@ -160,6 +160,24 @@ def decry_component_verify_ticket(from_xml,msg_sign,timestamp,nonce):
     component_verify_ticket = soup.ComponentVerifyTicket.text
     return component_verify_ticket
 
+class Test(BaseRequest):
+    """
+    第三方平台授权上线
+    """
+    def get_event(self):
+        """
+        """
+        self.send_text(self.event_key+"from_callback")
+
+    def get_text(self):
+        if self.wxtext == 'TESTCOMPONENT_MSG_TYPE_TEXT':
+            self.send_text("TESTCOMPONENT_MSG_TYPE_TEXT_callback")
+        else:
+            self.send_text("")
+            #url = "https://api.weixin.qq.com/cgi-bin/message/custom/send?access_token=%s"%
+
+
+
 
 class Adidas(BaseRequest):
     """
@@ -227,6 +245,8 @@ class www(WeChatHandler):
         'gh_76308e64a3c4':{'handler':Adidas,'token':'kini'},
         #adidas product
         'gh_51058468179a':{'handler':Adidas,'token':'kini'},
+        #test
+        'gh_3c884a361561':{'handler':Test,'token':'kini'},
     }
 
 class MainHandler(tornado.web.RequestHandler):
@@ -257,7 +277,7 @@ class MainHandler(tornado.web.RequestHandler):
         component_access_token = get_access_token(component_verify_ticket)
         print 'component_access_token:',component_access_token
         rcon.set('component_access_token',component_access_token,ex=7000)
-        self.write("success")
+        self.finish("success")
 
 class Login(tornado.web.RequestHandler):
 
