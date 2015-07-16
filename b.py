@@ -4,8 +4,8 @@ import requests
 import json
 import hashlib
 
-appid = 'wx8e080139ced94edd'
-appsecret = '0c79e1fa963cd80cc0be99b20a18faeb'
+appid = settings.appid
+appsecret = settings.appsecret
 component_access_token = '4zA58BCCeQ9k7SmyFem6hrEZ4e2gU5-wpIhvodFAx7GQZ0DtfhrxCcsIR_GerVv9WOYk9Ovxy2kQg_0igzV655Z1-TNeoKzC3COJ5HLQrf0'
 
 def get_jsapi_ticket(auth_token):

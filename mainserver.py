@@ -12,6 +12,7 @@ from bson.objectid import ObjectId
 from pymongo import MongoClient
 from json import JSONEncoder
 import time
+import settings
 
 rcon = redis.StrictRedis(host='wxtest.oookini.com', port=6379, db=1)
 con = MongoClient(host = 'wxtest.oookini.com',port=27017)['wx']
@@ -24,11 +25,11 @@ class mdump(JSONEncoder):
             return JSONEncoder.default(obj, **kwargs)
 
 
-appid = 'wx8e080139ced94edd'
-appsecret = '0c79e1fa963cd80cc0be99b20a18faeb'
-token='kini'
-encodingAESKey = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-host="wxtest.oookini.com"
+appid = settings.appid
+appsecret = settings.appsecret
+token= settings.token
+encodingAESKey = settings.encodingAESKey
+host= settings.host
 
 class mdump(JSONEncoder):
     def default(self, obj, **kwargs):

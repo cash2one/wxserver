@@ -2,9 +2,10 @@
 #-*- encoding:utf-8 -*-
 import requests
 import json
+import settings
 
-appid = 'wx8e080139ced94edd'
-appsecret = '0c79e1fa963cd80cc0be99b20a18faeb'
+appid = settings.appid
+appsecret = settings.appsecret
 
 def get_access_token(component_verify_ticket):
     """

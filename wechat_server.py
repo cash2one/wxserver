@@ -221,9 +221,9 @@ class WeChatHandler(tornado.web.RequestHandler):
         解密component_verify_ticket
         在公众号第三方平台创建审核通过后，微信服务器会向其“授权事件接收URL”每隔10分钟定时推送component_verify_ticket。    第三方平台方在收到ticket推送后也需进行解密
         """
-        appid = 'wx8e080139ced94edd'
-        token='kini'
-        encodingAESKey = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        appid = settings.appid
+        token= settings.token
+        encodingAESKey = settings.encodingAESKey
         decrypt_test = WXBizMsgCrypt2(token,encodingAESKey,appid)
         ret ,decryp_xml = decrypt_test.DecryptMsg(from_xml, msg_sign, timestamp, nonce)
         print 'ret:',ret
@@ -235,9 +235,9 @@ class WeChatHandler(tornado.web.RequestHandler):
         """
         加密消息
         """
-        appid = 'wx8e080139ced94edd'
-        token='kini'
-        encodingAESKey = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        appid = settings.appid
+        token= settings.token
+        encodingAESKey = settings.encodingAESKey
         encryp_test = WXBizMsgCrypt2(token,encodingAESKey,appid)
         ret,encrypt_xml = encryp_test.EncryptMsg(msg,'kini')
         print 'ret:',ret
